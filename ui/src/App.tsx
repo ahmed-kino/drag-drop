@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import ImageDropzone from "./pages/ImageDropzone";
+import React from "react";
 import Main from "./pages/Main";
 
 const App: React.FC = () => {

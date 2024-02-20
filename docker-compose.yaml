@@ -23,7 +23,7 @@ services:
     build: ./ui/
     env_file: ./ui/.envrc
     volumes:
-      - ./ui:/app:rw
+      - ./ui:/app
       - /app/node_modules
     ports:
       - "3000:3000"

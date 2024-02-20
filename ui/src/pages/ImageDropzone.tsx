@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Typography, styled } from "@mui/material";
 
-const Dropzone = styled("div")(({ theme }) => ({
+const Dropzone = styled("div")(() => ({
   border: "2px dashed #ccc",
   borderRadius: "5px",
   padding: "20px",
