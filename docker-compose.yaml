@@ -18,3 +18,12 @@ services:
       - ./data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+  ui:
+    build: ./ui/
+    env_file: ./ui/.envrc
+    volumes:
+      - ./ui:/app:rw
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
