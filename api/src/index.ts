@@ -4,6 +4,7 @@ import cors from "cors";
 import multer from "multer";
 import OcrClient from "./clients/ORCClient";
 import DBClient from "./clients/DBClient";
+import { validateResult } from "./utils/validateResult";
 
 dotenv.config();
 
@@ -29,9 +30,15 @@ app.post(
 
       await ocrClient.createWorkerImage();
       await ocrClient.recognizeImage(req.file.buffer);
-      await dbClient.initialize();
 
       const parsedPassportData = ocrClient.parsePassportData();
+
+      const validData = validateResult(parsedPassportData);
+
+      if (!validData)
+        return res.status(400).json({
+          errors: "Cannot parse the image please upload a clear image",
+        });
 
       ocrClient.close();
 
@@ -43,7 +50,7 @@ app.post(
 
       const result = await dbClient.createPassportImage(passport);
 
-      res.json({
+      return res.json({
         result,
       });
     } catch (error) {

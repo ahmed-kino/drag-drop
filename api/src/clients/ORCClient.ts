@@ -3,7 +3,7 @@ import { PassportInfo } from "../utils/types";
 import { extractPassportInfo } from "../utils/extractPassportInfo";
 
 class OcrClient {
-  private worker: any;
+  public worker: any;
   private ocrResult: string | null = null;
 
   constructor(private language: string) {

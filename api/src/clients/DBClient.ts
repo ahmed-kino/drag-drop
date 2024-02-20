@@ -6,14 +6,16 @@ import { DBPassportInfo } from "../utils/types";
 class DBClient {
   private connection: DataSource | null = null;
 
-  async initialize() {
-    try {
-      this.connection = await AppDataSource.initialize();
-      console.log("Data Source has been initialized!");
-    } catch (err) {
-      console.error("Error during Data Source initialization:", err);
-      throw err;
-    }
+  constructor() {
+    (async () => {
+      try {
+        this.connection = await AppDataSource.initialize();
+        console.log("Data Source has been initialized!");
+      } catch (err) {
+        console.error("Error during Data Source initialization:", err);
+        throw err;
+      }
+    })();
   }
 
   async createPassportImage(passportImage: DBPassportInfo) {
