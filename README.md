@@ -2,6 +2,9 @@
 
 ### Run the app (DEV):
 
-run `make compose` to run the app
+Run `make compose` to run the app
 
-run `make db` to connect to the db
+after running the containers you can run the following commands
+- `$ make shell` to connect to the api
+- `$ make db` to connect to the db
+- `$ make fmt-api` to format the api code
