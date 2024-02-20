@@ -44,9 +44,6 @@ app.post(
 
       const result = await dbClient.createPassportImage(passport);
 
-
-      await dbClient.close()
-
       res.json({
         result,
       });

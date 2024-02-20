@@ -9,10 +9,9 @@ class OcrClient {
   constructor(private language: string) {
     (async () => {
       this.worker = await createWorker(language);
-      console.log('Worker created');
+      console.log("Worker created");
     })();
   }
-
 
   async recognizeImage(imageBuffer: Buffer) {
     const {

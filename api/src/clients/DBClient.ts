@@ -50,7 +50,6 @@ class DBClient {
     }
   }
 
-
   async close() {
     try {
       if (this.connection) {
