@@ -1,8 +1,6 @@
 import express, { Request, Response, Application } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { AppDataSource } from "./data-source";
-import { PassportImage } from "./entity/PassportImage";
 import multer from "multer";
 import OcrClient from "./clients/ORCClient";
 import DBClient from "./clients/DBClient";
@@ -29,6 +27,7 @@ app.post(
     try {
       if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
+      await ocrClient.createWorkerImage();
       await ocrClient.recognizeImage(req.file.buffer);
       await dbClient.initialize();
 

@@ -7,13 +7,18 @@ class OcrClient {
   private ocrResult: string | null = null;
 
   constructor(private language: string) {
-    (async () => {
-      this.worker = await createWorker(language);
-      console.log("Worker created");
-    })();
+    this.language = language;
+  }
+
+  async createWorkerImage() {
+    this.worker = await createWorker(this.language);
+    console.log("Worker created");
   }
 
   async recognizeImage(imageBuffer: Buffer) {
+    if (!this.worker) {
+      throw new Error("Worker not initialized");
+    }
     const {
       data: { text },
     } = await this.worker.recognize(imageBuffer);
@@ -29,6 +34,9 @@ class OcrClient {
   }
 
   async close() {
+    if (!this.worker) {
+      throw new Error("Worker not initialized");
+    }
     await this.worker.terminate();
   }
 }
