@@ -11,9 +11,6 @@ export class PassportImage extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: "bytea" })
-  imageData: Buffer;
-
   @Column()
   fileName: string;
 
@@ -25,6 +22,12 @@ export class PassportImage extends BaseEntity {
 
   @Column()
   expiryDate: string;
+
+  @Column()
+  passportNumber: string;
+
+  @Column()
+  fullName: string;
 
   @CreateDateColumn()
   createdAt: Date;

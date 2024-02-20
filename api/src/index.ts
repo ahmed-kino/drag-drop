@@ -1,22 +1,15 @@
-import express, { Express, Request, Response, Application } from "express";
+import express, { Request, Response, Application } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { AppDataSource } from "./data-source";
 import { PassportImage } from "./entity/PassportImage";
-import { Page, createWorker } from "tesseract.js";
 import multer from "multer";
+import OcrClient from "./clients/ORCClient";
+import DBClient from "./clients/DBClient";
 
 dotenv.config();
 
-const port = process.env.PORT || 3000;
-
-AppDataSource.initialize()
-  .then(() => {
-    console.log("Data Source has been initialized!");
-  })
-  .catch((err) => {
-    console.error("Error during Data Source initialization:", err);
-  });
+const port = process.env.PORT || 3001;
 
 const app: Application = express();
 app.use(express.json());
@@ -26,6 +19,9 @@ app.use(express.json());
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+const ocrClient = new OcrClient("eng");
+const dbClient = new DBClient();
+
 app.post(
   "/upload",
   upload.single("passport"),
@@ -33,41 +29,32 @@ app.post(
     try {
       if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
-      const worker = await createWorker("eng");
-      const { data } = await worker.recognize(req.file.buffer);
+      await ocrClient.recognizeImage(req.file.buffer);
+      await dbClient.initialize();
 
-      // TODO: extract more data
-      const { dateOfBirth, expiryDate } = parsePassportData(data);
+      const parsedPassportData = ocrClient.parsePassportData();
 
-      const passport = await AppDataSource.getRepository(PassportImage).create({
-        // TODO: please fill this later
-        imageData: req.file.buffer,
-        fileName: "",
-        fileType: "",
-        dateOfBirth,
-        expiryDate,
+      ocrClient.close();
+
+      const passport = await dbClient.createPassportImage({
+        fileName: req.file.originalname,
+        fileType: req.file.mimetype,
+        ...parsedPassportData,
       });
 
-      const result =
-        await AppDataSource.getRepository(PassportImage).save(passport);
+      const result = await dbClient.createPassportImage(passport);
 
-      res.send(result);
+
+      await dbClient.close()
+
+      res.json({
+        result,
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: `Internal server error: ${error}` });
     }
   }
 );
-
-function parsePassportData(data: Page): {
-  dateOfBirth: string;
-  expiryDate: string;
-} {
-  // TODO: parse extract text here
-  console.log("the data is -->", data);
-  const dateOfBirth = "1990-01-01";
-  const expiryDate = "2022-12-31";
-  return { dateOfBirth, expiryDate };
-}
 
 app.listen(port);
