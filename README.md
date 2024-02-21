@@ -11,3 +11,4 @@ after running the containers you can run the following commands
 - `$ make fmt-api` to format the api code
 - `$ make fmt-ui` to format the ui code
 - `$ make shell-ui` to connect to the ui
+- `$ make test-api` to run api tests cases

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   api:
     build: ./api/
-    env_file: ./api/.envrc
+    env_file: ./api/.env
     volumes:
       - ./api/:/usr/src/app:rw
       - /usr/src/app/node_modules
@@ -21,9 +21,9 @@ services:
       - "5432:5432"
   ui:
     build: ./ui/
-    env_file: ./ui/.envrc
+    env_file: ./ui/.env
     volumes:
-      - ./ui:/app:rw
+      - ./ui:/app
       - /app/node_modules
     ports:
       - "3000:3000"
