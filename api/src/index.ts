@@ -18,7 +18,6 @@ app.use(express.json());
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-const ocrClient = new OcrClient("eng");
 const dbClient = new DBClient();
 
 app.post(
@@ -27,11 +26,9 @@ app.post(
   async (req: Request, res: Response) => {
     try {
       if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+      const ocrClient = new OcrClient(req.file.buffer, req.file.mimetype);
 
-      await ocrClient.createWorkerImage();
-      await ocrClient.recognizeImage(req.file.buffer);
-
-      const parsedPassportData = ocrClient.parsePassportData();
+      const parsedPassportData = await ocrClient.getImageData();
 
       const validData = validateResult(parsedPassportData);
 
@@ -39,8 +36,6 @@ app.post(
         return res.status(400).json({
           errors: "Cannot parse the image please upload a clear image",
         });
-
-      ocrClient.close();
 
       const passport = await dbClient.createPassportImage({
         fileName: req.file.originalname,

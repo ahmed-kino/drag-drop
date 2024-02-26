@@ -1,43 +1,39 @@
-import { createWorker } from "tesseract.js";
+import axios from "axios";
 import { PassportInfo } from "../utils/types";
-import { extractPassportInfo } from "../utils/extractPassportInfo";
 
 class OcrClient {
-  public worker: any;
-  private ocrResult: string | null = null;
+  private imageBuffer: Buffer;
+  private mimeType: string;
 
-  constructor(private language: string) {
-    this.language = language;
+  constructor(imageBuffer: Buffer, mimeType: string) {
+    this.imageBuffer = imageBuffer;
+    this.mimeType = mimeType;
   }
 
-  async createWorkerImage() {
-    this.worker = await createWorker(this.language);
-    console.log("Worker created");
-  }
+  async getImageData(): Promise<PassportInfo> {
+    try {
+      const formData = new FormData();
+      const blob = new Blob([this.imageBuffer], { type: this.mimeType });
+      formData.append("imagefile", blob, "rtaImage.jpg");
 
-  async recognizeImage(imageBuffer: Buffer) {
-    if (!this.worker) {
-      throw new Error("Worker not initialized");
+      const response = await axios.post(
+        "http://orcsvc:5000/process",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return {
+        fullName: `${response.data.name} ${response.data.surname}`,
+        dateOfBirth: response.data.birth_date,
+        passportNumber: response.data.document_number,
+        expiryDate: response.data.expiry_date,
+      };
+    } catch (error: any) {
+      throw new Error(`Error: ${error.response?.data}`);
     }
-    const {
-      data: { text },
-    } = await this.worker.recognize(imageBuffer);
-    this.ocrResult = text;
-    return text;
-  }
-
-  parsePassportData(): PassportInfo {
-    if (!this.ocrResult) {
-      throw new Error("OCR result not available");
-    }
-    return extractPassportInfo(this.ocrResult);
-  }
-
-  async close() {
-    if (!this.worker) {
-      throw new Error("Worker not initialized");
-    }
-    await this.worker.terminate();
   }
 }
 
