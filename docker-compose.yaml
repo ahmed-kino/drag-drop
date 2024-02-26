@@ -19,6 +19,14 @@ services:
       - ./data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  orcsvc:
+    build: ./orcsvc
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./orcsvc:/code:rw
+
   ui:
     build: ./ui/
     env_file: ./ui/.env
